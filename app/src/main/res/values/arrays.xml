@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="hostel_list">
+        <item>MBH2</item>
+        <item>LH</item>
+        <item>MLH</item>
+    </string-array>
+
+    <string-array name="months">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
+    <string-array name="years">
+        <item>2023</item>
+        <item>2024</item>
+        <item>2025</item>
+    </string-array>
+
+    <string-array name="bus_list">
+        <item>LH BUS 2</item>
+        <item>LH BUS 1</item>
+        <item>MBH BUS 2</item>
+        <item>MBH BUS 1</item>
+    </string-array>
+
+    <string-array name="to_whom_options">
+        <item>Driver</item>
+        <item>Students</item>
+        <item>Both</item>
+    </string-array>
+
+
+</resources>

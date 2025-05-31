@@ -1,0 +1,5 @@
+<!-- Base application theme. -->
+<resources>
+<style name="Theme.NITCBusTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+</style>
+</resources>
