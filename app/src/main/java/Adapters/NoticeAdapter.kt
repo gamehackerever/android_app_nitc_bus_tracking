@@ -15,7 +15,7 @@ class NoticeAdapter(private var notices: List<Notice>) :
     RecyclerView.Adapter<NoticeAdapter.NoticeViewHolder>() {
 
     inner class NoticeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameText: TextView = itemView.findViewById(R.id.noticeName)
+        val noticeTitle: TextView = itemView.findViewById(R.id.noticeTitle)
         val messageText: TextView = itemView.findViewById(R.id.noticeMessage)
         val dateText: TextView = itemView.findViewById(R.id.noticeDate)
     }
@@ -28,7 +28,7 @@ class NoticeAdapter(private var notices: List<Notice>) :
 
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
         val notice = notices[position]
-        holder.nameText.text = notice.name
+        holder.noticeTitle.text = notice.topic
         holder.messageText.text = notice.message
 
         // Format timestamp

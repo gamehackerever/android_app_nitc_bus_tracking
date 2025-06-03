@@ -1,14 +1,18 @@
 package com.nitc.nitcbustracker
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 
 class AdminActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var postNoticeFragment: PostNoticeFragment
+    private lateinit var adminNoticeFragment: AdminNoticeFragment
     private lateinit var adminFragment: AdminFragment
+    private lateinit var adminProfileFragment: AdminProfileFragment
     private var activeFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,23 +22,27 @@ class AdminActivity : AppCompatActivity() {
         bottomNavigationView = findViewById(R.id.bottom_navigation_admin)
 
         if (savedInstanceState == null) {
-            postNoticeFragment = PostNoticeFragment()
+            adminNoticeFragment = AdminNoticeFragment()
             adminFragment = AdminFragment()
+            adminProfileFragment = AdminProfileFragment()
 
             supportFragmentManager.beginTransaction()
-                .add(R.id.nav_admin_fragment, postNoticeFragment, "POST NOTICE")
+                .add(R.id.nav_admin_fragment, adminNoticeFragment, "POST NOTICE")
                 .add(R.id.nav_admin_fragment, adminFragment, "ADMIN")
-                .hide(postNoticeFragment)
+                .add(R.id.nav_admin_fragment, adminProfileFragment, "PROFILE")
+                .hide(adminNoticeFragment)
+                .hide(adminProfileFragment)
                 .commit()
 
             activeFragment = adminFragment
         } else {
-            postNoticeFragment = supportFragmentManager.findFragmentByTag("POST NOTICE") as? PostNoticeFragment ?: PostNoticeFragment()
+            adminNoticeFragment = supportFragmentManager.findFragmentByTag("POST NOTICE") as? AdminNoticeFragment ?: AdminNoticeFragment()
             adminFragment = supportFragmentManager.findFragmentByTag("ADMIN") as? AdminFragment ?: AdminFragment()
 
             activeFragment = when (bottomNavigationView.selectedItemId) {
                 R.id.nav_admin -> adminFragment
-                R.id.nav_notice -> postNoticeFragment
+                R.id.nav_admin_notice -> adminNoticeFragment
+                R.id.nav_admin_profile -> adminProfileFragment
                 else -> adminFragment
             }
         }
@@ -42,7 +50,8 @@ class AdminActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             val fragmentToShow = when (item.itemId) {
                 R.id.nav_admin -> adminFragment
-                R.id.nav_notice -> postNoticeFragment
+                R.id.nav_admin_notice -> adminNoticeFragment
+                R.id.nav_admin_profile -> adminProfileFragment
                 else -> adminFragment
             }
             showFragment(fragmentToShow)
@@ -59,5 +68,13 @@ class AdminActivity : AppCompatActivity() {
             .commit()
 
         activeFragment = fragmentToShow
+    }
+
+    fun hideBottomNav() {
+        findViewById<View>(R.id.bottom_navigation_admin).visibility = View.GONE
+    }
+
+    fun showBottomNav() {
+        findViewById<View>(R.id.bottom_navigation_admin).visibility = View.VISIBLE
     }
 }

@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,7 @@ import java.net.URL
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 
 
-class ProfileFragment : Fragment() {
+class StudentProfileFragment : Fragment() {
 
     lateinit var googleSignInClient: GoogleSignInClient
 
@@ -32,16 +33,16 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        return inflater.inflate(R.layout.fragment_student_profile, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val profileName = view.findViewById<EditText>(R.id.profile_name)
-        val profileEmail = view.findViewById<EditText>(R.id.profile_email)
-        val profilePhoneNo = view.findViewById<EditText>(R.id.profile_phone_no)
-        val profileHostel = view.findViewById<EditText>(R.id.profile_hostel)
-        val profilePhoto = view.findViewById<ImageView>(R.id.profile_image)
+        val profileName = view.findViewById<EditText>(R.id.profile_student_name)
+        val profileEmail = view.findViewById<EditText>(R.id.profile_student_email)
+        val profilePhoneNo = view.findViewById<EditText>(R.id.profile_student_phone_no)
+        val profileHostel = view.findViewById<EditText>(R.id.profile_student_hostel)
+        val profilePhoto = view.findViewById<ImageView>(R.id.profile_student_image)
         val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(requireContext())
         val email = account?.email
         val photo_url = account?.photoUrl
@@ -53,13 +54,16 @@ class ProfileFragment : Fragment() {
 
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
 
-        val logoutButton = view.findViewById<Button>(R.id.logout_button)
+        val logoutButtonStudent = view.findViewById<Button>(R.id.logout_student_button)
 
-        logoutButton.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
+        logoutButtonStudent.setOnClickListener {
+            //val sharedPref = requireActivity().getSharedPreferences("app_prefs", AppCompatActivity.MODE_PRIVATE)
+            val dialog = AlertDialog.Builder(requireContext())
+                .setTitle(Html.fromHtml("<font color='#000000'>Logout</font>"))
+                .setMessage(Html.fromHtml("<font color='#000000'>Are you sure you want to logout?</font>"))
                 .setPositiveButton("Yes") { _, _ ->
+
+                    //sharedPref.edit().clear().apply()
                     googleSignInClient.signOut().addOnCompleteListener {
                         val intent = Intent(requireActivity(), LoginActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -67,8 +71,20 @@ class ProfileFragment : Fragment() {
                         requireActivity().finish()
                     }
                 }
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("No", null)
                 .show()
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.apply {
+                setTextColor(resources.getColor(R.color.white))
+                setBackgroundColor(resources.getColor(R.color.black))
+            }
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.apply {
+                setTextColor(resources.getColor(R.color.white))
+                setBackgroundColor(resources.getColor(R.color.black))
+            }
+
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_border)
+
         }
 
 
@@ -87,7 +103,10 @@ class ProfileFragment : Fragment() {
                     profilePhoto.setImageBitmap(bitmap)
                 }
             }
-        }
+        } else {
+        // No photo URL at all, set default empty profile pic
+        profilePhoto.setImageResource(R.drawable.empty_profile_pic)
+    }
 
         // Launch coroutine here using lifecycleScope
         lifecycleScope.launch {
@@ -99,7 +118,6 @@ class ProfileFragment : Fragment() {
                 profileEmail.setText(userInfo?.email)
                 profilePhoneNo.setText(userInfo?.phone)
                 profileHostel.setText(userInfo?.hostel)
-                profilePhoto.setImageURI(photo_url)
             } else {
                 profileName.setText("Default Name")
                 profileEmail.setText("Default Email")

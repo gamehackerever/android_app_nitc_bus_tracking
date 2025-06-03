@@ -10,8 +10,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 class StudentActivity : AppCompatActivity() {
 
     private lateinit var mapFragment: MapFragment
-    private lateinit var profileFragment: ProfileFragment
-    private lateinit var getNoticeFragment: GetNoticeFragment
+    private lateinit var studentProfileFragment: StudentProfileFragment
+    private lateinit var studentNoticeFragment: StudentNoticeFragment
     private lateinit var bottomNavigationView: BottomNavigationView
     private var activeFragment: Fragment? = null
 
@@ -23,36 +23,43 @@ class StudentActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             mapFragment = MapFragment()
-            profileFragment = ProfileFragment()
-            getNoticeFragment = GetNoticeFragment()
+            studentProfileFragment = StudentProfileFragment()
+            studentNoticeFragment = StudentNoticeFragment()
 
             supportFragmentManager.beginTransaction()
-                .add(R.id.nav_student_fragment, profileFragment, "PROFILE")
-                .hide(profileFragment)
+                .add(R.id.nav_student_fragment, studentProfileFragment, "PROFILE")
+                .hide(studentProfileFragment)
                 .add(R.id.nav_student_fragment, mapFragment, "MAP")
-                .add(R.id.nav_student_fragment, getNoticeFragment, "NOTICE")
-                .hide(getNoticeFragment)
+                .add(R.id.nav_student_fragment, studentNoticeFragment, "NOTICE")
+                .hide(studentNoticeFragment)
                 .commit()
 
             activeFragment = mapFragment
         } else {
             mapFragment = supportFragmentManager.findFragmentByTag("MAP") as? MapFragment ?: MapFragment()
-            profileFragment = supportFragmentManager.findFragmentByTag("PROFILE") as? ProfileFragment ?: ProfileFragment()
-            getNoticeFragment = supportFragmentManager.findFragmentByTag("NOTICE") as? GetNoticeFragment ?: GetNoticeFragment()
+            studentProfileFragment = supportFragmentManager.findFragmentByTag("PROFILE") as? StudentProfileFragment ?: StudentProfileFragment()
+            studentNoticeFragment = supportFragmentManager.findFragmentByTag("NOTICE") as? StudentNoticeFragment ?: StudentNoticeFragment()
 
             activeFragment = when (bottomNavigationView.selectedItemId) {
-                R.id.nav_profile -> profileFragment
+                R.id.nav_student_profile -> studentProfileFragment
                 R.id.nav_map -> mapFragment
-                R.id.nav_notice -> getNoticeFragment
+                R.id.nav_student_notice -> studentNoticeFragment
                 else -> mapFragment
             }
         }
 
+        FirebaseMessaging.getInstance().subscribeToTopic("notifications-student")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("FCM", "Subscribed to notifications-student topic")
+                }
+            }
+
         bottomNavigationView.setOnItemSelectedListener { item ->
             val fragmentToShow = when (item.itemId) {
                 R.id.nav_map -> mapFragment
-                R.id.nav_profile -> profileFragment
-                R.id.nav_notice -> getNoticeFragment
+                R.id.nav_student_profile -> studentProfileFragment
+                R.id.nav_student_notice -> studentNoticeFragment
                 else -> mapFragment
             }
             showFragment(fragmentToShow)

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F2F3F5"
+    android:background="#FFFFFF"
     android:padding="16dp">
 
     <!-- Title with Add Notice Button -->
@@ -15,18 +15,19 @@
         android:layout_marginBottom="16dp">
 
         <TextView
+            android:layout_gravity="center"
             android:id="@+id/noticeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notice Board"
-            android:textSize="24sp"
+            android:textSize="40sp"
             android:textStyle="bold"
             android:textColor="#000000" />
 
         <ImageButton
             android:id="@+id/addNoticeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="55sp"
+            android:layout_height="55sp"
             android:src="@android:drawable/ic_input_add"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_gravity="end"
@@ -34,43 +35,14 @@
             app:tint="#000000" />
     </FrameLayout>
 
-    <!-- Filter Row -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/noticeEmpty"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="16dp"
-        android:weightSum="3">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableStart="@android:drawable/ic_menu_manage"
-            android:text="Filter"
-            android:textColor="#000000"
-            android:drawablePadding="8dp"
-            android:padding="8dp" />
-
-        <Spinner
-            android:id="@+id/monthSpinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/spinner_background"
-            android:padding="8dp"
-            android:entries="@array/months" />
-
-        <Spinner
-            android:id="@+id/yearSpinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/spinner_background"
-            android:padding="8dp"
-            android:entries="@array/years" />
-    </LinearLayout>
+        android:text="Notices will appear here!"
+        android:layout_gravity="center"
+        android:textSize="20dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
@@ -79,3 +51,5 @@
         android:layout_weight="1" />
 
 </LinearLayout>
+
+

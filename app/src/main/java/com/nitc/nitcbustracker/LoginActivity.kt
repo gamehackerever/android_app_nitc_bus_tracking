@@ -2,10 +2,15 @@ package com.nitc.nitcbustracker
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.signin.*
 import com.google.android.gms.common.SignInButton
@@ -15,13 +20,14 @@ import com.nitc.nitcbustracker.data.model.LoginRequest
 import kotlinx.coroutines.*
 import java.io.IOException
 import androidx.core.content.edit
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var etUsername: EditText
     private lateinit var etPassword: EditText
-    private lateinit var btnLogin: Button
+    private lateinit var btnLogin: MaterialButton
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var rememberMeCheckbox: MaterialCheckBox
 
@@ -29,7 +35,18 @@ class LoginActivity : AppCompatActivity() {
     private val PREFS_NAME = "LoginPrefs"
 
     private val RC_SIGN_IN = 100
+    private val PERMISSION_REQUEST_CODE = 100
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val requiredPermissions = arrayOf(
+        android.Manifest.permission.ACCESS_NETWORK_STATE,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.POST_NOTIFICATIONS,
+        android.Manifest.permission.INTERNET
+    )
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_page)
@@ -55,6 +72,10 @@ class LoginActivity : AppCompatActivity() {
             rememberMeCheckbox.isChecked = true
         }
 
+        if (!hasAllPermissions()) {
+            requestPermissions()
+        }
+
         // Google Sign-In setup
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -71,18 +92,38 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        FirebaseMessaging.getInstance().subscribeToTopic("notifications")
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("FCM", "Subscribed to notifications")
-                }
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val isLoggedIn = prefs.getBoolean("logged_in", false)
+        val role = prefs.getString("role", "")
+
+        Log.d("LoginDebug", "onCreate - logged_in: $isLoggedIn, role: $role")
+
+        if (isLoggedIn && role != null) {
+            val intent = when (role) {
+                "admin" -> Intent(this, AdminActivity::class.java)
+                "driver" -> Intent(this, DriverActivity::class.java)
+                else -> null
             }
+            intent?.let {
+                it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(it)
+                finish()
+            }
+        }
+
 
         btnGoogleSignIn.setOnClickListener {
             googleSignInClient.signOut()
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
+
+        FirebaseMessaging.getInstance().subscribeToTopic("notifications")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("FCM", "Subscribed to notifications")
+                }
+            }
 
         btnLogin.setOnClickListener {
             val email = etUsername.text.toString().trim()
@@ -96,10 +137,10 @@ class LoginActivity : AppCompatActivity() {
                 }
             } else {
                 // Clear credentials if unchecked
-                sharedPreferences.edit()
-                    .remove("email")
-                    .remove("password")
-                    .apply()
+                sharedPreferences.edit {
+                    remove("email")
+                        .remove("password")
+                }
             }
 
             if (email.isEmpty() || password.isEmpty()) {
@@ -113,6 +154,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginUser(email: String, password: String) {
         lifecycleScope.launch {
+            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
             try {
                 val response = withContext(Dispatchers.IO) {
                     RetrofitClient.api.login(LoginRequest(email, password))
@@ -120,18 +162,28 @@ class LoginActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     if (loginResponse?.success == true) {
+                        prefs.edit { putBoolean("logged_in", true) }
                         when (loginResponse.role) {
                             "admin" -> {
+                                prefs.edit {
+                                    putString("role", "admin")
+                                    putString("admin_email", email)
+                                }
                                 startActivity(Intent(this@LoginActivity, AdminActivity::class.java))
                                 finish()
                             }
                             "driver" -> {
+                                prefs.edit {
+                                    putString("role", "driver")
+                                    putString("driver_email", email)
+                                }
                                 val intent = Intent(this@LoginActivity, DriverActivity::class.java)
                                 intent.putExtra("busId", loginResponse.busId)
                                 startActivity(intent)
                                 finish()
                             }
                             "student" -> {
+                                prefs.edit { putString("role", "student") }
                                 Toast.makeText(
                                     this@LoginActivity,
                                     "Student login is only available via Google Sign-In",
@@ -221,6 +273,18 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Google sign-in failed", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun hasAllPermissions(): Boolean {
+        return requiredPermissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(this, requiredPermissions, PERMISSION_REQUEST_CODE)
     }
 
 }

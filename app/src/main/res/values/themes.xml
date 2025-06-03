@@ -1,5 +1,26 @@
-<!-- Base application theme. -->
 <resources>
-<style name="Theme.NITCBusTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-</style>
+    <style name="Theme.NITCBusTracker" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- App background and surface colors -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Outline color (custom usage) -->
+        <item name="colorOutline">@color/colorOutline</item>
+
+        <!-- Button style override -->
+        <item name="materialButtonStyle">@style/BlackButton</item>
+
+        <!-- Default text appearances -->
+        <item name="textAppearanceHeadline6">@style/Text.Heading</item>
+        <item name="textAppearanceBody1">@style/Text.Body</item>
+    </style>
 </resources>
